@@ -5,6 +5,7 @@ namespace Persistence
 {
     public class DataContext : DbContext
     {
+        // passing parameter of an instance of DbContext (which helps communicate with our Database)
         public DataContext(DbContextOptions options) : base(options)
         {
         }

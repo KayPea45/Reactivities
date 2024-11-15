@@ -486,6 +486,7 @@ $RECYCLE.BIN/
 # Dont add Notes.txt files which are for personal use
 *NOTE.txt
 *Useful-Commands.txt
+*CQRS.txt
 
 # There are third party keys that will be used and dont want to publicly publish that. This will be used in appsettings.json
 appsettings.json

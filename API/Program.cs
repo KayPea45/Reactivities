@@ -1,26 +1,14 @@
+using API.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/* Add services to the container. NOTE: order does not matter */
+/* Add services (like extensions installed from Nuget) to the container. NOTE: order does not matter */
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Tell our application about the Databasecontext class that we created in Persistence
-builder.Services.AddDbContext<DataContext>(opt => {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
-
-// Due to browser security, we need to set up Cors policy so that
-// we tell the browser to trust the returned header from API call
-builder.Services.AddCors(opt => {
-    opt.AddPolicy("CorsPolicy", policy => {
-        policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
-    });
-});
+// No need to pass services as the use of 'this' detects the service instance here and adds it automatically
+builder.Services.AddApplicationServices(builder.Configuration);
 /*End services*/
 
 var app = builder.Build();
