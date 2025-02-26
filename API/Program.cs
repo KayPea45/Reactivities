@@ -14,11 +14,11 @@ builder.Services.AddApplicationServices(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// We can add our middleware here to manipulate and do something with HTTP requests as it is called from and into our API. Then executed by the API endpoint (typical CRUD operations e.g. GET, POST etc.) will return, something that we have also manipulated, out to client who made the request from URI/URL. e.g. URI/URL https://api.example.com/users/
+// if (app.Environment.IsDevelopment())
+// {
+
+// }
 
 app.UseCors("CorsPolicy");
 
@@ -38,7 +38,7 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
-    context.Database.Migrate();
+    await context.Database.MigrateAsync(); // Creates DB only if it doesnt exist
     await Seed.SeedData(context);
 }
 catch (Exception ex)
@@ -46,5 +46,6 @@ catch (Exception ex)
     var logger = services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occured during migration");
 }
+/**/
 
 app.Run();

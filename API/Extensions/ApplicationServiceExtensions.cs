@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.Activities;
+using Application.Activities.Queries;
 using Application.Core;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -16,10 +12,6 @@ namespace API.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
-
             // Tell our application about the Databasecontext class that we created in Persistence
             services.AddDbContext<DataContext>(opt =>
             {
@@ -32,15 +24,16 @@ namespace API.Extensions
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000","https://localhost:3000");
                 });
             });
 
             // Once we have code in Activities Controller where we setup Query Mediator
             // We need to register our Mediator as a service and then tell where our handler is
+            // NOTE: This specifies that the assembly where the List.Handler type is defined will be scanned. It effectively tells MediatR to look for any classes that implement the request or notification handlers within that assembly. By doing this, you ensure that all necessary handlers are registered automatically.
             services.AddMediatR(
                 cfg =>
-                cfg.RegisterServicesFromAssemblies(typeof(List.Handler).Assembly)
+                cfg.RegisterServicesFromAssemblies(typeof(GetActivityList.Handler).Assembly)
             );
 
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);

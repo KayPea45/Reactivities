@@ -483,10 +483,14 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
+# old file
+*App-old.tsx
+
+### NOTES
 # Dont add Notes.txt files which are for personal use
-*NOTE.txt
-*Useful-Commands.txt
-*CQRS.txt
+*.txt
+
+*.png
 
 # There are third party keys that will be used and dont want to publicly publish that. This will be used in appsettings.json
 appsettings.json
