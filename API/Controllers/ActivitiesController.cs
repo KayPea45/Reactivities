@@ -1,7 +1,10 @@
 using Application.Activities;
+using Application.Activities.Commands;
+using Application.Activities.Queries;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 
+// Creating our Endpoints
 namespace API.Controllers
 {
     public class ActivitiesController : BaseApiController
@@ -13,40 +16,36 @@ namespace API.Controllers
             // From our List class in Application
             // and then initialize our class constructor - Query
             // note: Mediator is from derived class BaseApiController
-            return await Mediator.Send(new List.Query());
+            return await Mediator.Send(new GetActivityList.Query());
         }
 
         // -> api/activities/{id of activity} = retrieve specific activity
         [HttpGet("{id}")]
-        public async Task<ActionResult<Activity>> GetActivity(Guid id)
+        public async Task<ActionResult<Activity>> GetActivity(string id)
         {
-            return await Mediator.Send(new Details.Query{Id = id});
+            return await Mediator.Send(new GetActivityDetails.Query{Id = id});
         }
         /* Query end */
 
         /* For command */
         [HttpPost] // -> creating resource 
-        public async Task<IActionResult> CreateActivity(Activity activity) {
-            await Mediator.Send(new Create.Command { Activity = activity });
-            return Ok();
+        public async Task<ActionResult<string>> CreateActivity(Activity activity) {
+            return await Mediator.Send(new CreateActivity.Command { Activity = activity });
         }
 
         // From body of request, we get the Guid and Activity
-        [HttpPut("{id}")] // -> updating resource
-        public async Task<IActionResult> EditActivity(Guid id, Activity activity)
+        [HttpPut] // -> updating resource
+        public async Task<IActionResult> EditActivity(Activity activity)
         {
-            // simply assign the id of activity object parameter to id parameter 
-            activity.Id = id;
-            
             // and then send activity to our handler
-            await Mediator.Send(new Edit.Command { Activity = activity });
+            await Mediator.Send(new EditActivity.Command { Activity = activity });
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteActivity(Guid id) 
+        public async Task<IActionResult> DeleteActivity(string id) 
         {
-            await Mediator.Send(new Delete.Command { Id = id });
+            await Mediator.Send(new DeleteActivity.Command { Id = id });
 
             return Ok();
         }

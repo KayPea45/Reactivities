@@ -5,6 +5,7 @@
       // Use IntelliSense to find out which attributes exist for C# debugging
       // Use hover for the description of the existing attributes
       // For further information visit https://github.com/dotnet/vscode-csharp/blob/main/debugger-launchjson.md.
+      // Debug Startup of application
       "name": ".NET Core Launch (web)",
       "type": "coreclr",
       "request": "launch",
@@ -27,6 +28,8 @@
       }
     },
     {
+      // Will debug from here since we use dotnet watch
+      // can check for defect when does not start successfully
       "name": ".NET Core Attach",
       "type": "coreclr",
       "request": "attach"
