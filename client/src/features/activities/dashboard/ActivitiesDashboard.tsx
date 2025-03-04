@@ -3,7 +3,6 @@
 // import { useEffect } from "react";
 // import LoadingComponents from "../../../app/layout/LoadingComponents";
 import { Grid2 } from "@mui/material";
-import { Activity } from "../../../app/models/activity";
 import ActivityList from "./ActivityList";
 import ActivityDetails from "../details/ActivityDetails";
 import ActivityForm from "../form/ActivityForm";
@@ -19,8 +18,6 @@ type Props = {
 	selectedActivity?: Activity;
 	editMode: boolean;
 	handleEditMode: (editMode: boolean) => void;
-	submitForm: (activity: Activity) => void;
-	deleteActivity: (id: string) => void;
 };
 
 // We make ActivitiesDashboard an observer component to listen to any changes in the store (the properties - selectedActivity, editMode). Any other properties that are not used in the component and is changed will not re-render again.
@@ -31,8 +28,6 @@ export default function ActivitiesDashboard({
 	cancelSelectActivity,
 	editMode,
 	handleEditMode,
-	submitForm,
-	deleteActivity,
 }: Props) {
 	// const { activityStore } = useStore();
 	// const { loadActivities, activityRegistry } = activityStore;
@@ -47,7 +42,7 @@ export default function ActivitiesDashboard({
 	return (
 		<Grid2 container spacing={3}>
 			<Grid2 size={7} /* 12 column grid is whole width and want only 7/12 */>
-				<ActivityList activities={activities} selectActivity={selectActivity} deleteActivity={deleteActivity} />
+				<ActivityList activities={activities} selectActivity={selectActivity}/>
 			</Grid2>
 			<Grid2 size={5} /* other column space we want 5 column grid width*/>
 				{selectedActivity && !editMode && (
@@ -61,7 +56,6 @@ export default function ActivitiesDashboard({
 					<ActivityForm
 						activity={selectedActivity}
 						handleEditMode={handleEditMode}
-						submitForm={submitForm}
 					/>
 				)}
 			</Grid2>
