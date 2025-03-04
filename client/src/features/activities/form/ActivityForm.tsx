@@ -6,20 +6,16 @@
 // import { Activity } from "../../../app/models/activity"
 
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
-import { Activity } from "../../../app/models/activity";
 import { FormEvent } from "react";
+import { useActivities } from "../../../lib/hooks/useActivities";
 
 type Props = {
 	activity: Activity | undefined;
 	handleEditMode: (editMode: boolean) => void;
-	submitForm: (activity: Activity) => void;
 };
 
-export default function ActivityForm({
-	activity,
-	handleEditMode,
-	submitForm,
-}: Props) {
+export default function ActivityForm({ activity, handleEditMode }: Props) {
+	const { updateActivities, createActivity } = useActivities();
 	// const { activityStore } = useStore();
 
 	// const {
@@ -70,7 +66,7 @@ export default function ActivityForm({
 	// 	setActivity({ ...activity, [name]: value });
 	// }
 
-	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault(); // prevent default behavior of form submission
 
 		const formData = new FormData(event.currentTarget); // get form data from event
@@ -81,8 +77,14 @@ export default function ActivityForm({
 			// key is the name of the input
 			data[key] = value;
 		});
-		if (activity && activity.id) data.id = activity.id;
-		submitForm(data as unknown as Activity);
+		if (activity) {
+			data.id = activity.id;
+			await updateActivities.mutateAsync(data as unknown as Activity);
+			handleEditMode(false);
+		} else {
+			await createActivity.mutateAsync(data as unknown as Activity);
+			handleEditMode(false);
+		}
 	};
 
 	return (
@@ -111,7 +113,11 @@ export default function ActivityForm({
 				<TextField
 					name="date"
 					type="date"
-					defaultValue={activity?.date.split("T")[0]}
+					defaultValue={
+						activity?.date
+							? new Date(activity.date).toISOString().split("T")[0]
+							: new Date().toISOString().split("T")[0]
+					}
 				/>
 				<TextField name="city" label="City" defaultValue={activity?.city} />
 				<TextField name="venue" label="Venue" defaultValue={activity?.venue} />
@@ -119,7 +125,12 @@ export default function ActivityForm({
 					<Button color="inherit" onClick={() => handleEditMode(false)}>
 						Cancel
 					</Button>
-					<Button type="submit" color="success" variant="contained">
+					<Button
+						type="submit"
+						color="success"
+						variant="contained"
+						disabled={updateActivities.isPending || createActivity.isPending}
+					>
 						Submit
 					</Button>
 				</Box>

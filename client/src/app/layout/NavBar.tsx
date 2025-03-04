@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 
 type Props = {
-	setEditMode: (editMode: boolean) => void;
+	setEditMode: (editMode: boolean, isNew: boolean) => void;
 }
 
 export default function NavBar({setEditMode}: Props) {
@@ -65,7 +65,7 @@ export default function NavBar({setEditMode}: Props) {
                   Contact
 								</MenuItem>
 							</Box>
-              <Button onClick={() => setEditMode(true)} size="large" variant="contained" color="warning">
+              <Button onClick={() => setEditMode(true, true)} size="large" variant="contained" color="warning">
                   Create activity
               </Button>
 						</Toolbar>

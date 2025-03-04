@@ -5,7 +5,7 @@
 // import LoadingComponent from "../../../app/layout/LoadingComponents";
 
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
-import { Activity } from "../../../app/models/activity";
+import { useActivities } from "../../../lib/hooks/useActivities";
 
 type Props = {
 	activity: Activity;
@@ -13,7 +13,10 @@ type Props = {
 	handleEditMode: (editMode: boolean) => void;
 }
 
-export default function ActivityDetails({activity, cancelSelectActivity, handleEditMode}: Props) {
+export default function ActivityDetails({activity: selectedActivity, cancelSelectActivity, handleEditMode}: Props) {
+	const {activities} = useActivities();
+	const activity = activities?.find((x) => x.id === selectedActivity.id)
+	if (!activity) return <Typography>Loading...</Typography>
 	// const { activityStore } = useStore();
 	// const {
 	// 	selectedActivity: activity,
