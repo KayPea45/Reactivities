@@ -2,19 +2,16 @@ import { Group } from "@mui/icons-material";
 import {
 	AppBar,
 	Box,
-	Button,
 	Container,
 	CssBaseline,
 	MenuItem,
 	Toolbar,
 	Typography,
 } from "@mui/material";
+import { NavLink } from "react-router";
+import MenuItemLink from "../shared/components/MenuItemLink";
 
-type Props = {
-	setEditMode: (editMode: boolean, isNew: boolean) => void;
-}
-
-export default function NavBar({setEditMode}: Props) {
+export default function NavBar() {
 	return (
 		<>
 			<CssBaseline />
@@ -29,45 +26,30 @@ export default function NavBar({setEditMode}: Props) {
 					<Container maxWidth="xl">
 						<Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
 							<Box>
-								<MenuItem sx={{ display: "flex", gap: 2 }}>
+								<MenuItem
+									component={NavLink}
+									to={"/"}
+									sx={{ display: "flex", gap: 2 }}
+								>
 									<Group fontSize="large" />
 									<Typography variant="h4" fontWeight="bold">
 										Reactivities
 									</Typography>
 								</MenuItem>
 							</Box>
-							<Box sx={{display: 'flex', justifyContent: 'flex-start'}}>
-								<MenuItem
-									sx={{
-										fontSize: "1.2rem",
-										textTransform: "uppercase",
-										fontWeight: "bold",
-									}}
+							<Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+								<MenuItemLink
+									to={"/activities"}
 								>
-                  Activities
-								</MenuItem>
-                <MenuItem
-									sx={{
-										fontSize: "1.2rem",
-										textTransform: "uppercase",
-										fontWeight: "bold",
-									}}
+									Activities
+								</MenuItemLink>
+								<MenuItemLink
+									to={"/createActivity"}
 								>
-                  About
-								</MenuItem>
-                <MenuItem
-									sx={{
-										fontSize: "1.2rem",
-										textTransform: "uppercase",
-										fontWeight: "bold",
-									}}
-								>
-                  Contact
-								</MenuItem>
+									Create Activity
+								</MenuItemLink>
 							</Box>
-              <Button onClick={() => setEditMode(true, true)} size="large" variant="contained" color="warning">
-                  Create activity
-              </Button>
+							<MenuItem>User Menu</MenuItem>
 						</Toolbar>
 					</Container>
 				</AppBar>

@@ -4,31 +4,8 @@
 // import LoadingComponents from "../../../app/layout/LoadingComponents";
 import { Grid2 } from "@mui/material";
 import ActivityList from "./ActivityList";
-import ActivityDetails from "../details/ActivityDetails";
-import ActivityForm from "../form/ActivityForm";
 
-// Not for Mobx
-// In App.tsx, we include this component (ActivitiesDashboard) and need to pass in props
-// for the activities we get from API call in App.tsx.
-// But we need to define a property to hold Activity type thus creating an interface.
-type Props = {
-	activities: Activity[];
-	selectActivity: (id: string) => void;
-	cancelSelectActivity: () => void;
-	selectedActivity?: Activity;
-	editMode: boolean;
-	handleEditMode: (editMode: boolean) => void;
-};
-
-// We make ActivitiesDashboard an observer component to listen to any changes in the store (the properties - selectedActivity, editMode). Any other properties that are not used in the component and is changed will not re-render again.
-export default function ActivitiesDashboard({
-	activities,
-	selectActivity,
-	selectedActivity,
-	cancelSelectActivity,
-	editMode,
-	handleEditMode,
-}: Props) {
+export default function ActivitiesDashboard() {
 	// const { activityStore } = useStore();
 	// const { loadActivities, activityRegistry } = activityStore;
 
@@ -42,22 +19,10 @@ export default function ActivitiesDashboard({
 	return (
 		<Grid2 container spacing={3}>
 			<Grid2 size={7} /* 12 column grid is whole width and want only 7/12 */>
-				<ActivityList activities={activities} selectActivity={selectActivity}/>
+				<ActivityList />
 			</Grid2>
 			<Grid2 size={5} /* other column space we want 5 column grid width*/>
-				{selectedActivity && !editMode && (
-					<ActivityDetails
-						activity={selectedActivity}
-						cancelSelectActivity={cancelSelectActivity}
-						handleEditMode={handleEditMode}
-					/>
-				)}
-				{editMode && (
-					<ActivityForm
-						activity={selectedActivity}
-						handleEditMode={handleEditMode}
-					/>
-				)}
+				<h2>Activity Filters here</h2>
 			</Grid2>
 		</Grid2>
 	);

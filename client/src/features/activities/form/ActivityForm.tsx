@@ -8,15 +8,13 @@
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { FormEvent } from "react";
 import { useActivities } from "../../../lib/hooks/useActivities";
+import { useNavigate, useParams } from "react-router";
 
-type Props = {
-	activity: Activity | undefined;
-	handleEditMode: (editMode: boolean) => void;
-};
-
-export default function ActivityForm({ activity, handleEditMode }: Props) {
-	const { updateActivities, createActivity } = useActivities();
-	// const { activityStore } = useStore();
+export default function ActivityForm() {
+	const { id } = useParams();
+	const { updateActivities, createActivity, activity, isLoadingActivity } =
+		useActivities(id);
+	const navigate = useNavigate(); // to be used in the submit handler to navigate to the activity details page
 
 	// const {
 	// 	selectedActivity,
@@ -66,6 +64,14 @@ export default function ActivityForm({ activity, handleEditMode }: Props) {
 	// 	setActivity({ ...activity, [name]: value });
 	// }
 
+	const handleCancelActivityForm = () => {
+		if (!id) {
+			navigate("/activities");
+		} else {
+			navigate(`/activities/${id}`);
+		}
+	};
+
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault(); // prevent default behavior of form submission
 
@@ -80,18 +86,31 @@ export default function ActivityForm({ activity, handleEditMode }: Props) {
 		if (activity) {
 			data.id = activity.id;
 			await updateActivities.mutateAsync(data as unknown as Activity);
-			handleEditMode(false);
+			navigate(`/activities/${activity.id}`);
 		} else {
-			await createActivity.mutateAsync(data as unknown as Activity);
-			handleEditMode(false);
+			createActivity.mutateAsync(data as unknown as Activity, {
+				// call back function that runs after the mutation is successful
+				// NOTE: onSuccess is from the useMutation hook
+				onSuccess: (id: string) => {
+					navigate(`/activities/${id}`);
+				},
+			});
 		}
 	};
 
+	if (isLoadingActivity) return <Typography>Activity is loading...</Typography>;
+
 	return (
 		<Paper sx={{ borderRadius: 3, padding: 3 }}>
-			<Typography variant="h5" gutterBottom color="primary">
-				Create Activity
-			</Typography>
+			{id && activity ? (
+				<Typography variant="h5" gutterBottom color="primary">
+					Edit Activity
+				</Typography>
+			) : (
+				<Typography variant="h5" gutterBottom color="primary">
+					Create Activity
+				</Typography>
+			)}
 			<Box
 				component="form"
 				onSubmit={(e) => handleSubmit(e)}
@@ -122,7 +141,7 @@ export default function ActivityForm({ activity, handleEditMode }: Props) {
 				<TextField name="city" label="City" defaultValue={activity?.city} />
 				<TextField name="venue" label="Venue" defaultValue={activity?.venue} />
 				<Box sx={{ display: "flex", justifyContent: "end", gap: 3 }}>
-					<Button color="inherit" onClick={() => handleEditMode(false)}>
+					<Button onClick={handleCancelActivityForm} color="inherit">
 						Cancel
 					</Button>
 					<Button

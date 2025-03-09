@@ -1,10 +1,11 @@
-import { createBrowserRouter, RouteObject } from "react-router-dom";
+import { createBrowserRouter } from "react-router";
 import App from "../layout/App";
 import ActivitiesDashboard from "../../features/activities/dashboard/ActivitiesDashboard";
 import ActivityForm from "../../features/activities/form/ActivityForm";
+import HomePage from "../../features/home/HomePage";
 import ActivityDetails from "../../features/activities/details/ActivityDetails";
 
-export const routes: RouteObject[] = [
+export const routes = createBrowserRouter([
    {
       // The path will be '/' meaning the root of the application
       // E.g. localhost:3000/, localhost:3000/activities, localhost:3000/createActivity etc.
@@ -15,13 +16,12 @@ export const routes: RouteObject[] = [
       element: <App />,
       children: [
          // Note on the use of keys - we are using keys to reset the states of the component - https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
-         // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop.
+         // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop. This will cause the component to unmount and then remount.
+         {path:'', element: <HomePage />},
          {path: 'activities', element: <ActivitiesDashboard />},
          {path: 'activities/:id', element: <ActivityDetails />},
-         {path: 'createActivity', element: <ActivityForm key='create'/>},
+         {path: 'createActivity', element: <ActivityForm />},
          {path: 'manage/:id', element: <ActivityForm key='manage'/>},
       ]
    }
-]
-
-export const router = createBrowserRouter(routes);
+])

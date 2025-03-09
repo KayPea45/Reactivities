@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 
 // Our custom hook to fetch the activities
-export const useActivities = () => {
+export const useActivities = (id?: string) => {
 	const queryClient = useQueryClient();
 	
 	// Destructure to retrieve the data from the useQuery hook
@@ -25,6 +25,18 @@ export const useActivities = () => {
 		},
 	});
 	
+	// Retrieve an activity record by id
+	// NOTE: need to pass in the id as a parameter to the useQuery hook
+	const {data: activity, isLoading: isLoadingActivity} = useQuery({
+		queryKey: ["activites", id],
+		queryFn: async () => {
+			const response = await agent.get<Activity>(`/activities/${id}`)
+			return response.data;
+		},
+		enabled: !!id // the !! operator is used to convert the id to a boolean value
+		// We enable the query only if the id is present else if we dont have this, this query will still run and it will return an error
+	})
+	
 	// useMutation hook will be used to update the activities in the API and the cache
 	const updateActivities = useMutation({
 		mutationFn: async (activity: Activity) => {
@@ -41,7 +53,8 @@ export const useActivities = () => {
 	// similar to update but we create a new activity and instead use a post request
 	const createActivity = useMutation({
 		mutationFn: async (activity: Activity) => {
-			await agent.post(`/activities`, activity)
+			const response = await agent.post(`/activities`, activity); // should return the id of the new activity, check CreateActivity in Application folder within Command
+			return response.data;
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
@@ -60,5 +73,5 @@ export const useActivities = () => {
 			})
 		}
 	})
-	return { activities, isPending, updateActivities, createActivity, deleteActivity };
+	return { activities, isPending, updateActivities, createActivity, deleteActivity, activity, isLoadingActivity };
 };
