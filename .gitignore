@@ -489,8 +489,9 @@ $RECYCLE.BIN/
 ### NOTES
 # Dont add Notes.txt files which are for personal use
 *.txt
-
+*.jpg
 *.png
 
 # There are third party keys that will be used and dont want to publicly publish that. This will be used in appsettings.json
 appsettings.json
+API/reactivities.db

@@ -1,9 +1,11 @@
-import { Button } from "@mui/material";
+import {  Container, Typography } from "@mui/material";
 
 export default function HomePage() {
 	return (
-        <Button href='/activities'>
-          Take me to the Activities!
-        </Button>
+    <Container sx={{mt: 3}}>
+      <Typography variant="h3">
+        Home page
+      </Typography>
+    </Container>
 	);
 }

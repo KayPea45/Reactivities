@@ -5,18 +5,19 @@
 // import LoadingComponent from "../../../app/layout/LoadingComponents";
 
 import { Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
+import { Link, useNavigate, useParams } from "react-router";
 import { useActivities } from "../../../lib/hooks/useActivities";
 
-type Props = {
-	activity: Activity;
-	cancelSelectActivity: () => void;
-	handleEditMode: (editMode: boolean) => void;
-}
+export default function ActivityDetails() {
+	// A way we can use hook from React Router to navigate to a different page
+	// Alternatively, we can use way we did in NavBar.tsx
+	const navigate = useNavigate();
+	const {id} = useParams();
+	const {activity, isLoadingActivity} = useActivities(id);
 
-export default function ActivityDetails({activity: selectedActivity, cancelSelectActivity, handleEditMode}: Props) {
-	const {activities} = useActivities();
-	const activity = activities?.find((x) => x.id === selectedActivity.id)
-	if (!activity) return <Typography>Loading...</Typography>
+	if (isLoadingActivity) return <Typography>Activity is loading...</Typography>
+
+	if (!activity) return <Typography>Activity is not found!</Typography>
 	// const { activityStore } = useStore();
 	// const {
 	// 	selectedActivity: activity,
@@ -45,8 +46,8 @@ export default function ActivityDetails({activity: selectedActivity, cancelSelec
 				<Typography variant="body1">{activity.description}</Typography>
 			 </CardContent>
 			 <CardActions>
-				<Button color="primary" onClick={() => handleEditMode(true)}>Edit</Button>
-				<Button onClick={cancelSelectActivity} color="inherit">Cancel</Button>
+				<Button color="primary" component={Link} to={`/manage/${activity.id}`} >Edit</Button>
+				<Button onClick={() => navigate('/activities')} color="inherit">Cancel</Button>
 			 </CardActions>
 		</Card>
 	);
