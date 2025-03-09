@@ -102,15 +102,9 @@ export default function ActivityForm() {
 
 	return (
 		<Paper sx={{ borderRadius: 3, padding: 3 }}>
-			{id && activity ? (
 				<Typography variant="h5" gutterBottom color="primary">
-					Edit Activity
+					{activity ? "Edit Activity": "Create Activity"}
 				</Typography>
-			) : (
-				<Typography variant="h5" gutterBottom color="primary">
-					Create Activity
-				</Typography>
-			)}
 			<Box
 				component="form"
 				onSubmit={(e) => handleSubmit(e)}
