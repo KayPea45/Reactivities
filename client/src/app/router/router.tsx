@@ -3,7 +3,7 @@ import App from "../layout/App";
 import ActivitiesDashboard from "../../features/activities/dashboard/ActivitiesDashboard";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import HomePage from "../../features/home/HomePage";
-import ActivityDetails from "../../features/activities/details/ActivityDetails";
+import ActivityDetailPage from "../../features/activities/details/ActivityDetailPage";
 
 export const routes = createBrowserRouter([
    {
@@ -19,7 +19,7 @@ export const routes = createBrowserRouter([
          // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop. This will cause the component to unmount and then remount.
          {path:'', element: <HomePage />},
          {path: 'activities', element: <ActivitiesDashboard />},
-         {path: 'activities/:id', element: <ActivityDetails />},
+         {path: 'activities/:id', element: <ActivityDetailPage />},
          {path: 'createActivity', element: <ActivityForm />},
          {path: 'manage/:id', element: <ActivityForm key='manage'/>},
       ]
