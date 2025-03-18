@@ -1,9 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
+import { useLocation } from "react-router";
 
 // Our custom hook to fetch the activities
 export const useActivities = (id?: string) => {
 	const queryClient = useQueryClient();
+	const location = useLocation();
+	
 	
 	// Destructure to retrieve the data from the useQuery hook
 	// We can also destructure and retrieve the status of the query, error,
@@ -23,6 +26,7 @@ export const useActivities = (id?: string) => {
 			const response = await agent.get<Activity[]>("/activities");
 			return response.data;
 		},
+		enabled: !id && location.pathname ==='/activities' 
 	});
 	
 	// Retrieve an activity record by id

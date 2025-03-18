@@ -1,4 +1,5 @@
 import axios from "axios";
+import { store } from "../stores/store";
 
 //** Loading delay **//
 const sleep = (delay: number) => {
@@ -9,6 +10,12 @@ const sleep = (delay: number) => {
 
 const agent = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
+// Do something before a request from the client is actioned by the server
+agent.interceptors.request.use(config => {
+	store.uiStore.isBusy();
+	return config
+})
+
 // utilise interceptors to do something to the reponse before it gets to the client and also to the request before it gets to the server
 // In this case, we target the response and add a delay of 1000ms before it gets to the client to simulate a loading delay
 agent.interceptors.response.use(async response => {
@@ -18,6 +25,8 @@ agent.interceptors.response.use(async response => {
 	} catch (error) {
 		console.log(error);
 		return await Promise.reject(error);
+	} finally {
+		store.uiStore.isIdle();
 	}
 });
 //** End of loading delay **//
