@@ -1,16 +1,17 @@
 // Using this to store all the stores in one place
 
 import { createContext, useContext } from "react";
-import ActivityStore from "./activityStore";
+import { UIStore } from "./uiStore";
 
 interface Store {
-   activityStore: ActivityStore
+   uiStore: UIStore
 }
 
 export const store: Store = {
-   activityStore: new ActivityStore()
+   uiStore: new UIStore()
 }
 
+// React context
 export const StoreContext = createContext(store);
 
 // React hook to let us use the store in our components
