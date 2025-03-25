@@ -1,7 +1,7 @@
 // Using this to store all the stores in one place
 
 import { createContext, useContext } from "react";
-import { UIStore } from "./uiStore";
+import { UIStore } from "./UIStore";
 
 interface Store {
    uiStore: UIStore

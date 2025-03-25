@@ -1,5 +1,8 @@
+using API.Middleware;
 using Application.Activities.Queries;
+using Application.Activities.Validators;
 using Application.Core;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -13,6 +16,7 @@ namespace API.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration config)
         {
             // Tell our application about the Databasecontext class that we created in Persistence
+            // Scoped to the HTTP request when request is created and instantiated for the duration of the lifetime of the request
             services.AddDbContext<DataContext>(opt =>
             {
                 opt.UseSqlite(config.GetConnectionString("DefaultConnection"));
@@ -24,7 +28,7 @@ namespace API.Extensions
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000","https://localhost:3000");
+                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000", "https://localhost:3000");
                 });
             });
 
@@ -33,11 +37,28 @@ namespace API.Extensions
             // NOTE: This specifies that the assembly where the List.Handler type is defined will be scanned. It effectively tells MediatR to look for any classes that implement the request or notification handlers within that assembly. By doing this, you ensure that all necessary handlers are registered automatically.
             services.AddMediatR(
                 cfg =>
-                cfg.RegisterServicesFromAssemblies(typeof(GetActivityList.Handler).Assembly)
+                {
+                    cfg.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
+                    /*
+                        cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); adds the ValidationBehavior class as an open generic behavior to the MediatR pipeline.
+                        This means that the ValidationBehavior will be applied to all requests and responses handled by MediatR.
+
+                        Pipeline Execution:
+                            When a request is sent through MediatR, it passes through the pipeline behaviors before reaching the main request handler.
+                            The ValidationBehavior is one of these behaviors and will validate the request before it is handled by the main request handler (CreateActivity Command is executed but the CreateActivity Handler is not yet executed).
+                    */
+                    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+                }
             );
 
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
+            
+            // Transient means that this service will only be created as needed. E.g. and exception occurs and then disposed of when exception is handled and resolved completely. In comparison to DbContext, as mentioned above, it is scoped to the HTTP request.
+            // Ensure we add the middleware and make sure its at top of the middleware pipeline (go to Program.cs)
+            services.AddTransient<ExceptionMiddleware>();
 
+            services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
+            
             return services;
         }
     }

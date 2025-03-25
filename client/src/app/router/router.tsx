@@ -1,9 +1,12 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import App from "../layout/App";
 import ActivitiesDashboard from "../../features/activities/dashboard/ActivitiesDashboard";
 import ActivityForm from "../../features/activities/form/ActivityForm";
 import HomePage from "../../features/home/HomePage";
 import ActivityDetailPage from "../../features/activities/details/ActivityDetailPage";
+import TestErrors from "../../features/errors/TestError";
+import NotFound from "../../features/errors/NotFound";
+import ServerError from "../../features/errors/ServerError";
 
 export const routes = createBrowserRouter([
    {
@@ -22,6 +25,12 @@ export const routes = createBrowserRouter([
          {path: 'activities/:id', element: <ActivityDetailPage />},
          {path: 'createActivity', element: <ActivityForm />},
          {path: 'manage/:id', element: <ActivityForm key='manage'/>},
+         // For testing errors
+         {path: 'errors', element: <TestErrors />},
+         {path: 'not-found', element: <NotFound />},
+         {path: 'server-error', element: <ServerError />},
+         // If navigate to a path that does not exist, redirect to the not-found page
+         {path: '*', element: <Navigate replace to='/not-found' />}
       ]
    }
 ])

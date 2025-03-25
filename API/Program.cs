@@ -1,19 +1,30 @@
 using API.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
+using FluentValidation;
+using Application.Activities.Validators;
+using API.Middleware;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 /* Add services (like extensions installed from Nuget) to the container. NOTE: order does not matter */
 
 builder.Services.AddControllers();
+
 // No need to pass services as the use of 'this' detects the service instance here and adds it automatically
+// NOTE: we can find the AddApplicationServices inside the ApplicationServiceExtensions.cs file
 builder.Services.AddApplicationServices(builder.Configuration);
 /*End services*/
 
+/* Start of our Middleware pipeline */
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Make sure this at the start of the middleware pipeline
+app.UseMiddleware<ExceptionMiddleware>();
+
+
 // We can add our middleware here to manipulate and do something with HTTP requests as it is called from and into our API. Then executed by the API endpoint (typical CRUD operations e.g. GET, POST etc.) will return, something that we have also manipulated, out to client who made the request from URI/URL. e.g. URI/URL https://api.example.com/users/
 // if (app.Environment.IsDevelopment())
 // {
