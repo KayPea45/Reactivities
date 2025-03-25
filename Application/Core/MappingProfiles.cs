@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.Activities;
+using Application.Activities.DTOs;
 using AutoMapper;
 using Domain;
 
@@ -17,6 +13,13 @@ namespace Application.Core
             // This allows us to reduce the code we write in Activities/Edit.cs where 
             // dont have to assign each of activity property to the one retrieved from API request.
             CreateMap<Activity, Activity>();
+
+            // When a user creates a new activity, we will need to map the CreateActivityDto to the Activity class
+            // Also, we will need to use the CreateActivityDto for our create activity handler
+            CreateMap<CreateActivityDto, Activity>();
+
+            CreateMap<EditActivityDto, Activity>();
+
         }
     }
 }

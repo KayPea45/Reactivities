@@ -1,5 +1,7 @@
 import axios from "axios";
 import { store } from "../stores/store";
+import { toast } from "react-toastify";
+import { routes } from "../../app/router/router";
 
 //** Loading delay **//
 const sleep = (delay: number) => {
@@ -11,26 +13,67 @@ const sleep = (delay: number) => {
 const agent = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
 // Do something before a request from the client is actioned by the server
-agent.interceptors.request.use(config => {
+agent.interceptors.request.use((config) => {
 	store.uiStore.isBusy();
-	return config
-})
+	return config;
+});
 
 // utilise interceptors to do something to the reponse before it gets to the client and also to the request before it gets to the server
 // In this case, we target the response and add a delay of 1000ms before it gets to the client to simulate a loading delay
-agent.interceptors.response.use(async response => {
-	try {
+agent.interceptors.response.use(
+	// When response is successful, this block of code will run
+	async response => {
 		await sleep(1000);
-		return response;
-	} catch (error) {
-		console.log(error);
-		return await Promise.reject(error);
-	} finally {
 		store.uiStore.isIdle();
-	}
-});
-//** End of loading delay **//
+		return response;
+	},
+	//else when there is an error
+	async error => {
+		await sleep(1000);
+		store.uiStore.isIdle();
+		
+		// NOTE: the data object is the whole response object you see in the console
+		const {status, data} = error.response
 
+		switch (status) {
+			case 400:
+				if (data.errors) {
+					// represent and format the errors we get
+					const modalStateErrors = [];
+
+					// loop over each key in the errors object
+					for (const key in data.errors) {
+						if (data.errors[key]) {
+							modalStateErrors.push(data.errors[key]);
+						}
+					}
+					// flatten the array of arrays into a single array
+					throw modalStateErrors.flat();
+				} else {
+					//else as we are not dealing with data.errors object
+					toast.error(data);
+				}
+				break;
+			case 401: 
+				toast.error('unauthorised');
+				break;
+			case 404:
+				routes.navigate('/not-found');
+				break;
+			case 500: 
+			   // navigate to the server error page and pass the error data as state
+				// the error data can be accessed via destructuring the state in useLocation hook
+				routes.navigate('/server-error', {state: {error: data}});
+				break;
+			default: 
+				break;
+		}
+
+		// rethrow the error for react query to handle
+		return Promise.reject(error);
+	}
+);
+//** End of loading delay **//
 
 // For every request the API makes, uses this URL at the beginning
 

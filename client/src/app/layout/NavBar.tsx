@@ -48,6 +48,9 @@ export default function NavBar() {
 								<MenuItemLink to={"/createActivity"}>
 									Create Activity
 								</MenuItemLink>
+								<MenuItemLink to={"/errors"}>
+									Errors
+								</MenuItemLink>
 							</Box>
 							<MenuItem>User Menu</MenuItem>
 						</Toolbar>
