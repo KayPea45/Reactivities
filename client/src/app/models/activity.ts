@@ -1,3 +1,5 @@
+
+// NOT USED: using types instead of interface --> types/index.d.ts
 export interface Activity {
    id: string
    title: string

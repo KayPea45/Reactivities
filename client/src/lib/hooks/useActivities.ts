@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
+import { Activity } from "../types";
+import { FieldValues } from "react-hook-form";
 
 // Our custom hook to fetch the activities
 export const useActivities = (id?: string) => {
@@ -56,7 +58,7 @@ export const useActivities = (id?: string) => {
 
 	// similar to update but we create a new activity and instead use a post request
 	const createActivity = useMutation({
-		mutationFn: async (activity: Activity) => {
+		mutationFn: async (activity: FieldValues) => {
 			const response = await agent.post(`/activities`, activity); // should return the id of the new activity, check CreateActivity in Application folder within Command
 			return response.data;
 		},
