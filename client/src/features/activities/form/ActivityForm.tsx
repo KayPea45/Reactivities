@@ -1,68 +1,52 @@
-// import { useState, useEffect } from "react";
-// import { useStore } from "../../../app/stores/store";
-// import { observer } from "mobx-react-lite";
-// import { useParams } from "react-router-dom";
-// import LoadingComponent from "../../../app/layout/LoadingComponents";
-// import { Activity } from "../../../app/models/activity"
-
-import { Box, Button, Paper, TextField, Typography } from "@mui/material";
-import { FormEvent } from "react";
+import { Box, Button, Paper, Typography } from "@mui/material";
 import { useActivities } from "../../../lib/hooks/useActivities";
 import { useNavigate, useParams } from "react-router";
+import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import {
+	activitySchema,
+	ActivitySchema,
+} from "../../../lib/schemas/activitySchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import TextInput from "../../../app/shared/components/TextInput";
+import SelectInput from "../../../app/shared/components/SelectInput";
+import { categoryOptions } from "./categoryOptions";
+import DateTimeInput from "../../../app/shared/components/DateTimeInput";
+import LocationInput from "../../../app/shared/components/LocationInput";
+// import { Activity } from "../../../lib/types";
 
 export default function ActivityForm() {
+	// We can remove the name property from the TextField component as the register function in react-hook-form will take care of it
+	// Also, we type the useForm hook with the activitySchema that we created for zod validation.
+	// the resolver property is put in place by react-hook-form to allow us to use another third party validation library
+	// The control object is provided by the useForm hook in react-hook-form. It acts as a central manager for the form's state and validation logic. When you pass control to a custom input component, it connects that component to the form's state and enables features like validation, error handling, and value updates.
+	const { reset, handleSubmit, control } = useForm<ActivitySchema>({
+		resolver: zodResolver(activitySchema),
+		mode: "onTouched",
+	});
 	const { id } = useParams();
 	const { updateActivities, createActivity, activity, isLoadingActivity } =
 		useActivities(id);
-	const navigate = useNavigate(); // to be used in the submit handler to navigate to the activity details page
+	const navigate = useNavigate(); // to be used in the submit handler to
 
-	// const {
-	// 	selectedActivity,
-	// 	loadActivity,
-	// 	// createActivity,
-	// 	// updateActivity,
-	// 	// loading,
-	// 	loadingInitial,
-	// } = activityStore;
+	useEffect(() => {
+		// this will reset the form when the activity changes and set the values of the fields to the new activity
+		if (activity) {
+			// our activity is flattened and we will need to set our location as an object with
+			// the necessary properties
+			// reset(activity) flattened..
 
-	// const [activity, setActivity] = useState<Activity>({
-	// 	id: "",
-	// 	title: "",
-	// 	category: "",
-	// 	description: "",
-	// 	date: "",
-	// 	city: "",
-	// 	venue: "",
-	// });
-
-	// const { id } = useParams();
-	// const navigate = useNavigate();
-
-	// useEffect hook to update the state when selectedActivity changes
-	// useEffect(() => {
-	// 	if (id) {
-	// 		loadActivity(id).then(() => setActivity(selectedActivity!));
-	// 	}
-	// }, [loadActivity, id, selectedActivity]);
-
-	// if (loadingInitial) return <LoadingComponent />;
-
-	// function handleSubmit() {
-	// 	// console.log(activity);
-	// 	if (activity.id) {
-	// 		updateActivity(activity).then(() => { navigate(`/activities/${activity.id}`); });;
-	// 	} else {
-	// 		activity.id = uuid(); // we generate the guid on the client side
-	// 		createActivity(activity).then(() => { navigate(`/activities/${activity.id}`); });
-	// 	}
-	// }
-
-	// function handleInputChange(
-	// 	event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
-	// ) {
-	// 	const { name, value } = event.target;
-	// 	setActivity({ ...activity, [name]: value });
-	// }
+			reset({
+				...activity,
+				location: {
+					city: activity.city,
+					venue: activity.venue,
+					latitude: activity.latitude,
+					longitude: activity.longitude,
+				},
+			});
+		}
+	}, [activity, reset]);
 
 	const handleCancelActivityForm = () => {
 		if (!id) {
@@ -72,29 +56,31 @@ export default function ActivityForm() {
 		}
 	};
 
-	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault(); // prevent default behavior of form submission
+	// When we submit we need to flatten back our activity submitted data due to location
+	// we will need to flatten location to properly fit the API schema of our Activity Dto (createActivityDto) for properties: venue, city, latitude, longitude
+	const onSubmit = async (data: ActivitySchema) => {
+		const { location, ...rest } = data; // rest will extract other properties
+		const flattenedData = { ...rest, ...location }; // combine properties into a single object
 
-		const formData = new FormData(event.currentTarget); // get form data from event
+		try {
+			// Check if we have activity, then update. Else, create
+			if (activity) {
+				// overwrite the activity currently in our state to our flattened data from activity form and pass it to our mutate fnc
+				updateActivities.mutate({...activity,...flattenedData},
+					{
+						onSuccess: () => navigate(`/activities/${activity.id}`),
+					});
 
-		console.log(formData);
-		const data: { [key: string]: FormDataEntryValue } = {};
-		formData.forEach((value, key) => {
-			// key is the name of the input
-			data[key] = value;
-		});
-		if (activity) {
-			data.id = activity.id;
-			await updateActivities.mutateAsync(data as unknown as Activity);
-			navigate(`/activities/${activity.id}`);
-		} else {
-			createActivity.mutateAsync(data as unknown as Activity, {
-				// call back function that runs after the mutation is successful
-				// NOTE: onSuccess is from the useMutation hook
-				onSuccess: (id: string) => {
-					navigate(`/activities/${id}`);
-				},
-			});
+			} else {
+				createActivity.mutate(
+					flattenedData,
+					{
+						onSuccess: (id) => navigate(`/activities/${id}`),
+					}
+				);
+			}
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
@@ -102,38 +88,39 @@ export default function ActivityForm() {
 
 	return (
 		<Paper sx={{ borderRadius: 3, padding: 3 }}>
-				<Typography variant="h5" gutterBottom color="primary">
-					{activity ? "Edit Activity": "Create Activity"}
-				</Typography>
+			<Typography variant="h5" gutterBottom color="primary">
+				{activity ? "Edit Activity" : "Create Activity"}
+			</Typography>
 			<Box
 				component="form"
-				onSubmit={(e) => handleSubmit(e)}
+				onSubmit={handleSubmit(onSubmit)}
 				sx={{ display: "flex", flexDirection: "column", gap: 3 }}
 			>
-				<TextField name="title" label="Title" defaultValue={activity?.title} />
-				<TextField
-					name="description"
+				{/* instead of register, we create a custom component  */}
+				<TextInput label="Title" name="title" control={control} />
+				<TextInput
 					label="Description"
-					defaultValue={activity?.description}
+					name="description"
+					control={control}
 					multiline
 					rows={3}
 				/>
-				<TextField
-					name="category"
-					label="Category"
-					defaultValue={activity?.category}
+				<Box display="flex" gap={3}>
+					<SelectInput
+						items={categoryOptions}
+						label="Category"
+						name="category"
+						control={control}
+					/>
+					<DateTimeInput label="Date" name="date" control={control} />
+				</Box>
+
+				<LocationInput
+					control={control}
+					label="Enter the location"
+					name="location"
 				/>
-				<TextField
-					name="date"
-					type="date"
-					defaultValue={
-						activity?.date
-							? new Date(activity.date).toISOString().split("T")[0]
-							: new Date().toISOString().split("T")[0]
-					}
-				/>
-				<TextField name="city" label="City" defaultValue={activity?.city} />
-				<TextField name="venue" label="Venue" defaultValue={activity?.venue} />
+
 				<Box sx={{ display: "flex", justifyContent: "end", gap: 3 }}>
 					<Button onClick={handleCancelActivityForm} color="inherit">
 						Cancel
