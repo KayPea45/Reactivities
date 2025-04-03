@@ -4,13 +4,20 @@ using Persistence;
 using FluentValidation;
 using Application.Activities.Validators;
 using API.Middleware;
+using Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 /* Add services (like extensions installed from Nuget) to the container. NOTE: order does not matter */
-
-builder.Services.AddControllers();
+// Add an authentication policy that only allows authenticated users to access all the endpoints
+builder.Services.AddControllers(opt => {
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    opt.Filters.Add(new AuthorizeFilter(policy));
+});
 
 // No need to pass services as the use of 'this' detects the service instance here and adds it automatically
 // NOTE: we can find the AddApplicationServices inside the ApplicationServiceExtensions.cs file
@@ -33,8 +40,15 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseCors("CorsPolicy");
 
+// ensure ordering is correct
+// we have to authenticate users before giving them authorisation
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
+// MapGroup specifies that we follow the same pattern for our other api controllers
+app.MapGroup("api").MapIdentityApi<User>(); // e.g. api/login
+
 
 /* 
     Using - In .Net there is a garbage collector that organises and cleans up unused code
@@ -49,8 +63,9 @@ var services = scope.ServiceProvider;
 try
 {
     var context = services.GetRequiredService<DataContext>();
+    var userManager = services.GetRequiredService<UserManager<User>>();
     await context.Database.MigrateAsync(); // Creates DB only if it doesnt exist
-    await Seed.SeedData(context);
+    await Seed.SeedData(context, userManager);
 }
 catch (Exception ex)
 {

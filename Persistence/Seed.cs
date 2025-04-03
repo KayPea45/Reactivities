@@ -1,11 +1,32 @@
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistence
 {
     public class Seed
     {
-        public static async Task SeedData(DataContext context)
+        public static async Task SeedData(DataContext context, UserManager<User>userManager)
         {
+
+            // Seeding in users into our db if none
+            if (!userManager.Users.Any())
+            {
+                // Due to the nature of SignInManager from asp.net we need to make username an email format as email is treated as username
+                var users = new List<User>
+                {
+                    new() {DisplayName = "Bob", UserName = "bob@test.com", Email = "bob@test.com"},
+                    new() {DisplayName = "Tom", UserName = "tom@test.com", Email = "tom@test.com"},
+                    new() {DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"}
+                };
+
+                // Make sure password is complex
+                // Here we are setting same p/w to our 3 users
+                foreach (var user in users)
+                {
+                    await userManager.CreateAsync(user, "Pa$$w0rd");
+                }
+            }
+
             if (context.Activities.Any()) return;
 
             var activities = new List<Activity>

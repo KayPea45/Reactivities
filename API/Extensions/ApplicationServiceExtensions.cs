@@ -2,7 +2,9 @@ using API.Middleware;
 using Application.Activities.Queries;
 using Application.Activities.Validators;
 using Application.Core;
+using Domain;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -28,7 +30,7 @@ namespace API.Extensions
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000", "https://localhost:3000");
+                    policy.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:3000", "https://localhost:3000");
                 });
             });
 
@@ -52,13 +54,24 @@ namespace API.Extensions
             );
 
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
-            
+
             // Transient means that this service will only be created as needed. E.g. and exception occurs and then disposed of when exception is handled and resolved completely. In comparison to DbContext, as mentioned above, it is scoped to the HTTP request.
             // Ensure we add the middleware and make sure its at top of the middleware pipeline (go to Program.cs)
             services.AddTransient<ExceptionMiddleware>();
 
             services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
-            
+
+            // Service for our Identity/Users
+            services.AddIdentityApiEndpoints<User>(opt =>
+            {
+                // There is bug on Microsoft side. SigninManager will use Email to check instead of username even though it is stated otherwise.
+                // So we will treat username as email
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<DataContext>(); // Let ef know where our users are stored
+
+
             return services;
         }
     }
