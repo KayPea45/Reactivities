@@ -1,10 +1,12 @@
 using Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Persistence
 {
     // passing parameter of an instance of DbContext (which helps communicate with our Database)
-    public class DataContext(DbContextOptions options) : DbContext(options)
+    // With Identity, inherit from IdentityDbContext instead of DbContext
+    public class DataContext(DbContextOptions options) : IdentityDbContext<User>(options)
     {
 
         // DbSet represent the tables we are creating
