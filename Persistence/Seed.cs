@@ -19,7 +19,7 @@ namespace Persistence
                     new() {DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"}
                 };
 
-                // Make sure password is complex
+                // Make sure password is complex enough to be accepted by Identity framework
                 // Here we are setting same p/w to our 3 users
                 foreach (var user in users)
                 {

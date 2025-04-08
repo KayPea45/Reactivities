@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
+// NOTE: We normally have DTOs in application, but due to the nature in which we implement for Identity, we need to create it within the API layer
+// so that we can use the Data Annotations for validation. We will not be using FluentValidation for this
 // Dto class to register new uers
 namespace API.DTOs
 {

@@ -1,19 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
-import { Activity } from "../types";
 import { FieldValues } from "react-hook-form";
+import { useAccount } from "./useAccount";
 
 // Our custom hook to fetch the activities
 export const useActivities = (id?: string) => {
 	const queryClient = useQueryClient();
+	const {currentUser} = useAccount();
 	const location = useLocation();
 	
 	
 	// Destructure to retrieve the data from the useQuery hook
 	// We can also destructure and retrieve the status of the query, error,
 	// useQuery will be used to fetch the data from the API
-	const { data: activities, isPending } = useQuery({
+	const { data: activities, isLoading } = useQuery({
 		// queryKey is used to identify the query. If the queryKey changes, the query will be re-fetched
 		// In this case, the queryKey is the array of activities
 		// queryFn is the function that will fetch the data for the query
@@ -28,7 +29,8 @@ export const useActivities = (id?: string) => {
 			const response = await agent.get<Activity[]>("/activities");
 			return response.data;
 		},
-		enabled: !id && location.pathname ==='/activities' 
+		// Only enabled when the user is logged in and the pathname is '/activities'
+		enabled: !id && location.pathname ==='/activities'  && !!currentUser
 	});
 	
 	// Retrieve an activity record by id
@@ -39,7 +41,7 @@ export const useActivities = (id?: string) => {
 			const response = await agent.get<Activity>(`/activities/${id}`)
 			return response.data;
 		},
-		enabled: !!id // the !! operator is used to convert the id to a boolean value
+		enabled: !!id && !!currentUser // the !! operator is used to convert the id to a boolean value
 		// We enable the query only if the id is present else if we dont have this, this query will still run and it will return an error
 	})
 	
@@ -79,5 +81,5 @@ export const useActivities = (id?: string) => {
 			})
 		}
 	})
-	return { activities, isPending, updateActivities, createActivity, deleteActivity, activity, isLoadingActivity };
+	return { activities, isLoading, updateActivities, createActivity, deleteActivity, activity, isLoadingActivity };
 };
