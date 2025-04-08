@@ -76,6 +76,9 @@ export const useAccount = () => {
 
    // Fetch the current loggedin user from server and store it in the cache
    // also need to check if were loading before verifying for current user
+   // NOTE: remember that query is loaded everytime we call the hook
+   // So when we call useAccount hook in RegisterForm with destructuring the registerUser function, it will call the useQuery hook again and fetch the user data again
+   // But we wanna avoid this so extra configuration done on enabled property.
    const {data: currentUser, isLoading: loadingUserInfo} = useQuery({
       queryKey: ['user'],
       queryFn: async () => {
