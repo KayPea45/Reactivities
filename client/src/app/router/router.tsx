@@ -7,6 +7,9 @@ import ActivityDetailPage from "../../features/activities/details/ActivityDetail
 import TestErrors from "../../features/errors/TestError";
 import NotFound from "../../features/errors/NotFound";
 import ServerError from "../../features/errors/ServerError";
+import LoginForm from "../../features/account/LoginForm";
+import RequireAuth from "./RequireAuth";
+import RegisterForm from "../../features/account/RegisterForm";
 
 export const routes = createBrowserRouter([
    {
@@ -18,19 +21,24 @@ export const routes = createBrowserRouter([
       path: '/', 
       element: <App />,
       children: [
-         // Note on the use of keys - we are using keys to reset the states of the component - https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
-         // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop. This will cause the component to unmount and then remount.
+         // Components that require authentication will be wrapped in the RequireAuth component
+         {element: <RequireAuth />, children: [
+            {path: 'activities', element: <ActivitiesDashboard />},
+            {path: 'activities/:id', element: <ActivityDetailPage />},
+            {path: 'createActivity', element: <ActivityForm />},
+            // Note on the use of keys - we are using keys to reset the states of the component - https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
+            // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop. This will cause the component to unmount and then remount.
+            {path: 'manage/:id', element: <ActivityForm key='manage'/>},
+         ]},
          {path:'', element: <HomePage />},
-         {path: 'activities', element: <ActivitiesDashboard />},
-         {path: 'activities/:id', element: <ActivityDetailPage />},
-         {path: 'createActivity', element: <ActivityForm />},
-         {path: 'manage/:id', element: <ActivityForm key='manage'/>},
+         {path: 'register', element: <RegisterForm />},
+         {path: 'login', element: <LoginForm />},
          // For testing errors
          {path: 'errors', element: <TestErrors />},
          {path: 'not-found', element: <NotFound />},
          {path: 'server-error', element: <ServerError />},
          // If navigate to a path that does not exist, redirect to the not-found page
-         {path: '*', element: <Navigate replace to='/not-found' />}
+         {path: '*', element: <Navigate replace to='/not-found' />},
       ]
    }
 ])

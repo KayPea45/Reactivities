@@ -33,7 +33,7 @@ namespace API.Controllers
             // They will have to do it after registering
             if (result.Succeeded) return Ok();
 
-            // Check for errors, whether from Data Annotation coming from the registerDto, or from UserManager due to weak password or duplicate email address etc.
+            // Check for errors, whether from Data Annotation coming from the registerDto (which is already applied in ModelState). Here we are looping over the errors from the result from UserManager due to weak password or duplicate email address etc.
             foreach (var error in result.Errors)
             {
                 // Inherited from our BaseApiController (which inherited from ASP.NET ControllerBase)
@@ -68,8 +68,24 @@ namespace API.Controllers
 
         }
 
+        [HttpDelete("delete")]
+        public async Task<ActionResult> DeleteAccount() 
+        {
+            if (User.Identity?.IsAuthenticated == false) return NoContent();
+
+            var user = await signInManager.UserManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            await signInManager.SignOutAsync();
+            
+            // Delete the user from the database
+            await signInManager.UserManager.DeleteAsync(user);
+
+            return NoContent();
+        }
+
         // Identity does not have a logout endpoint
-        // so we need to create our own
+        // so we need to create our own utilising SignInManager
         [HttpPost("logout")]
         public async Task<ActionResult> Logout() 
         {

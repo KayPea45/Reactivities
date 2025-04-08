@@ -7,13 +7,14 @@ import { useActivities } from "../../../lib/hooks/useActivities";
 export default function ActivityList() {
 
 	// Retrieve activities from our custom Hook
-	const { activities, isPending } = useActivities();
+	const { activities, isLoading } = useActivities();
 
-	if (!activities || isPending) return <Typography>Loading...</Typography>;
+	if (isLoading) return <Typography>Loading...</Typography>;
+
+	if (!activities) return <Typography>No Activities found</Typography>;
+
 	return (
 		<Box sx={{display: 'flex', flexDirection: 'column', gap: 3}}>
-			{/* NOTE: we use => {} curly braces when we need to return something
-			Else, we use the () brackets */}
 			{activities.map(activity => (
 				<ActivityCard key={activity.id} activity={activity} />
 			))}
