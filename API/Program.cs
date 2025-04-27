@@ -1,8 +1,6 @@
 using API.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
-using FluentValidation;
-using Application.Activities.Validators;
 using API.Middleware;
 using Domain;
 using Microsoft.AspNetCore.Identity;

@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Application.Activities.DTOs;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +20,7 @@ namespace Application.Activities.Queries
         // Derive from IRequest from MediatR to tell IRequest what object 
         // we are returning from query, in this case it is the List of activity 
         // from Domain
-        public class Query : IRequest<List<Activity>>
+        public class Query : IRequest<List<ActivityDto>>
         {
             // If we need to send data from API 
             // then we add properties here e.g. ID, or the Entity i.e Activity
@@ -28,12 +31,14 @@ namespace Application.Activities.Queries
         // Handler class
         // Derive from IRequestHandler which takes in parameter Query (defined above as our request) and then a response which is the List of Activites
         // Use this to fetch data from our database
-        public class Handler(DataContext context /*ILogger<List> logger*/) : IRequestHandler<Query, List<Activity>>
+        public class Handler(DataContext context /*ILogger<List> logger*/, IMapper mapper) : IRequestHandler<Query, List<ActivityDto>>
         {
 
-            public async Task<List<Activity>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<ActivityDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await context.Activities.ToListAsync(cancellationToken);
+                return await context.Activities
+                    .ProjectTo<ActivityDto>(mapper.ConfigurationProvider)
+                    .ToListAsync(cancellationToken);
             }
         }
     }
