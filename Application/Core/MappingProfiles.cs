@@ -1,4 +1,5 @@
 using Application.Activities.DTOs;
+using Application.Profiles.DTOs;
 using AutoMapper;
 using Domain;
 
@@ -20,6 +21,19 @@ namespace Application.Core
 
             CreateMap<EditActivityDto, Activity>();
 
+            // Configure for AutoMapper to map out properties that dont exist in our Activity class
+            // When mapping from Activity to ActivityDto as a result of creating an Activity, we will set the HostDisplayName equal to the DisplayName of the User that is the host of the activity and same for HostId from User Id
+            // we have ! to override the nullable reference and if IsHost doesnt exist from the Attendees then we will set HostDisplayName and HostId to null
+            CreateMap<Activity, ActivityDto>()
+                .ForMember(d => d.HostDisplayName, o => o.MapFrom(s => s.Attendees.FirstOrDefault(x => x.IsHost)!.User.DisplayName))
+                .ForMember(d => d.HostId, o => o.MapFrom(s => s.Attendees.FirstOrDefault(x => x.IsHost)!.User.Id));
+
+            // We will also need to map the ActivityAttendee class to the UserProfile class
+            CreateMap<ActivityAttendee, UserProfile>()
+                .ForMember(destinationMember: d => d.Id, o => o.MapFrom(s => s.User.Id))
+                .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.User.DisplayName))
+                .ForMember(d => d.Bio, o => o.MapFrom(s => s.User.Bio))
+                .ForMember(d => d.ImageUrl, o => o.MapFrom(s => s.User.ImageUrl));
         }
     }
 }

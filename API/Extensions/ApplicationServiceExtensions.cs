@@ -2,8 +2,11 @@ using API.Middleware;
 using Application.Activities.Queries;
 using Application.Activities.Validators;
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
+using Infrastructure.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -53,6 +56,12 @@ namespace API.Extensions
                 }
             );
 
+            // We need to register our UserAccessor as a service so that we can use it in our application. This is done by adding it to the services collection.
+            // This allows us to inject the UserAccessor into any class that requires it, such as our handlers or controllers.
+            // NOTE: We are using the interface IUserAccessor to register the UserAccessor class. This is a common practice in dependency injection, as it allows us to easily swap out implementations if needed.
+            // We want it scoped HttpRequest since were using the HttpContextAccessor to get the user ID from the JWT token/cookie when a user is authenticating to an endpoint (e.g. login)
+            services.AddScoped<IUserAccessor, UserAccessor>();
+
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
             // Transient means that this service will only be created as needed. E.g. and exception occurs and then disposed of when exception is handled and resolved completely. In comparison to DbContext, as mentioned above, it is scoped to the HTTP request.
@@ -71,6 +80,15 @@ namespace API.Extensions
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<DataContext>(); // Let ef know where our users are stored
 
+            // register the authorization handler with the ASP.NET Core dependency injection system. This will allow the authorization handler to be used in the authorization pipeline for protected endpoints.
+            // This is where we add our custom authorization policy. We are creating a new policy called "IsActivityHost" and adding the HostRequirement to it.
+            services.AddAuthorization(opt => {
+                opt.AddPolicy("IsActivityHost", policy => {
+                    policy.Requirements.Add(new HostRequirement());
+                });
+            });
+            // Using the AddTransient method to register the HostRequirementHandler as a transient service. This means that a new instance of the handler will be created each time it is requested. And then when user is checked if host of activity, it will be disposed of.
+            services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
 
             return services;
         }
