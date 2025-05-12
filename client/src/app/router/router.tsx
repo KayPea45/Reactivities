@@ -29,6 +29,7 @@ export const routes = createBrowserRouter([
             // Note on the use of keys - we are using keys to reset the states of the component - https://react.dev/learn/preserving-and-resetting-state#resetting-a-form-with-a-key
             // when we navigate to the same component with different props, the component will not re-render. To force a re-render, we can use the key prop. This will cause the component to unmount and then remount.
             {path: 'manage/:id', element: <ActivityForm key='manage'/>},
+            // {path: 'profiles/:id', element: <Profile />}
          ]},
          {path:'', element: <HomePage />},
          {path: 'register', element: <RegisterForm />},
