@@ -11,7 +11,10 @@ const sleep = (delay: number) => {
 };
 
 // withCredentials is used to send cookies with the request
-const agent = axios.create({ baseURL: import.meta.env.VITE_API_URL, withCredentials: true });
+const agent = axios.create({ 
+	baseURL: import.meta.env.VITE_API_URL, 
+	withCredentials: true 
+});
 
 // Do something before a request from the client is actioned by the server
 agent.interceptors.request.use((config) => {
