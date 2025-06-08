@@ -5,6 +5,7 @@ using Application.Core;
 using Application.Interfaces;
 using Domain;
 using FluentValidation;
+using Infrastructure.Photos;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -61,6 +62,7 @@ namespace API.Extensions
             // NOTE: We are using the interface IUserAccessor to register the UserAccessor class. This is a common practice in dependency injection, as it allows us to easily swap out implementations if needed.
             // We want it scoped HttpRequest since were using the HttpContextAccessor to get the user ID from the JWT token/cookie when a user is authenticating to an endpoint (e.g. login)
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IPhotoService, PhotoService>();
 
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
 
@@ -89,6 +91,12 @@ namespace API.Extensions
             });
             // Using the AddTransient method to register the HostRequirementHandler as a transient service. This means that a new instance of the handler will be created each time it is requested. And then when user is checked if host of activity, it will be disposed of.
             services.AddTransient<IAuthorizationHandler, HostRequirementHandler>();
+
+            // We need to register our CloudinarySettings as a service so that we can use it in our application.
+            // in our ConfigureServices method, we are using the Configure method to bind the CloudinarySettings section of our appsettings.json file within our API folder to the CloudinarySettings class.
+            // This allows us to easily access the Cloudinary settings throughout our application.
+            // NOTE: dont forget to install the Cloudinary Nuget package into our Infrastructure project as it is where we are using the CloudinarySettings class.
+            services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings"));
 
             return services;
         }

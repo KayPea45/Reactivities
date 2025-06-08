@@ -30,5 +30,14 @@ namespace Infrastructure.Security
          // Here we are using the ClaimTypes.NameIdentifier to get the user ID from the claims in the HTTP context. This is typically set when a user logs in and is used to identify the user in the system.
          return httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("No user found");
       }
+
+      public async Task<User> GetUserWithPhotosAsync()
+      {
+         var userId = GetUserId();
+         return await dataContext.Users
+        .Include(x => x.Photos)
+        .FirstOrDefaultAsync(x => x.Id == userId)
+        ?? throw new UnauthorizedAccessException("No user is logged in");
+      }
    }
 }

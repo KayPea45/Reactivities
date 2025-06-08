@@ -34,6 +34,10 @@ namespace Application.Core
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.User.DisplayName))
                 .ForMember(d => d.Bio, o => o.MapFrom(s => s.User.Bio))
                 .ForMember(d => d.ImageUrl, o => o.MapFrom(s => s.User.ImageUrl));
+
+            // We will also need to map the User class to the UserProfile class
+            // Since the properties in User and UserProfile are the same, we can use CreateMap to map them directly without needing to specify each property
+            CreateMap<User, UserProfile>();
         }
     }
 }

@@ -15,6 +15,8 @@ namespace Persistence
 
         // Add Dbset for the ActivityAttendee table
         public required DbSet<ActivityAttendee> ActivityAttendees { get; set; }
+        
+        public required DbSet<Photo> Photos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -29,7 +31,7 @@ namespace Persistence
                 .WithMany(x => x.Activities) // Link to the navigation property in User
                 .HasForeignKey(x => x.UserId); // Link to the foreign key property in ActivityAttendee
 
-             // Now to configure the relationship (Activity to ActivityAttendee) 1 : * (one to many)
+            // Now to configure the relationship (Activity to ActivityAttendee) 1 : * (one to many)
             builder.Entity<ActivityAttendee>()
                 .HasOne(x => x.Activity) // From ActivityAttendee property
                 .WithMany(x => x.Attendees) // Link to the navigation property in Activity
