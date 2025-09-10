@@ -38,6 +38,9 @@ namespace Application.Core
             // We will also need to map the User class to the UserProfile class
             // Since the properties in User and UserProfile are the same, we can use CreateMap to map them directly without needing to specify each property
             CreateMap<User, UserProfile>();
+
+            // Mapping for EditProfileDTO to User
+            CreateMap<EditProfileDTO, User>();
         }
     }
 }

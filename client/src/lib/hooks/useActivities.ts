@@ -34,12 +34,14 @@ export const useActivities = (id?: string) => {
 		// Here we will show to current user if they are the host of the activity or if they are going to the activity
 		select: (data) => {
 			return data.map((activity) => {
+				const hostActivity = activity.attendees.find(({ id }) => id === activity.hostId)
 				return {
 					...activity,
 					isHost: activity.hostId === currentUser?.id,
 					isGoing: activity.attendees.some(
 						(attendee) => attendee.id === currentUser?.id
 					),
+					hostImageUrl: hostActivity?.imageUrl,
 				};
 			});
 		},
@@ -57,12 +59,14 @@ export const useActivities = (id?: string) => {
 		// We enable the query only if the id is present else if we dont have this, this query will still run and it will return an error
 		// Same as above query, we can use select to transform the data before it is returned for individual activity
 		select: (data) => {
+			const hostActivity = data.attendees.find(({ id }) => id === data.hostId)
 			return (data = {
 				...data,
 				isHost: data.hostId === currentUser?.id,
 				isGoing: data.attendees.some(
 					(attendee) => attendee.id === currentUser?.id
 				),
+				hostImageUrl: hostActivity?.imageUrl,
 			});
 		},
 	});
@@ -70,7 +74,7 @@ export const useActivities = (id?: string) => {
 	// useMutation hook will be used to update the activities in the API and the cache
 	const updateActivities = useMutation({
 		mutationFn: async (activity: Activity) => {
-			await agent.put(`/activities`, activity);
+			await agent.put(`/activities/${activity.id}`, activity);
 		},
 		// In the event the mutation was successful,
 		onSuccess: async () => {

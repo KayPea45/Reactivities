@@ -44,6 +44,18 @@ namespace API.Controllers
         {
             return HandleResult(await Mediator.Send(new GetProfile.Query { UserId = userId }));
         }
+
+        [HttpPut("editProfile")]
+        public async Task<ActionResult> EditProfile(EditProfileDTO profileDTO)
+        {
+            return HandleResult(await Mediator.Send(new EditProfile.Command { ProfileDTO = profileDTO }));
+        }
+
+        [HttpPut("{photoId}/unSetMainPhoto")]
+        public async Task<ActionResult> UnSetMainPhoto(string photoId)
+        {
+            return HandleResult(await Mediator.Send(new UnSetMainPhoto.Command { PhotoId = photoId }));
+        }
         
     }
 }
