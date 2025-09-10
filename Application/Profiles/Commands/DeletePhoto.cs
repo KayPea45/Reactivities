@@ -46,6 +46,8 @@ namespace Application.Profiles.Commands
                 // Then remove photo from the user's photos collection
                 user.Photos.Remove(photo);
 
+                // Save changes to the database
+                // If successful, return success result with Unit value that will contain no data
                 var result = await context.SaveChangesAsync(cancellationToken) > 0;
                 return result
                     ? Result<Unit>.Success(Unit.Value)

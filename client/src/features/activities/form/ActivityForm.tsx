@@ -32,10 +32,11 @@ export default function ActivityForm() {
 	useEffect(() => {
 		// this will reset the form when the activity changes and set the values of the fields to the new activity
 		if (activity) {
-			// our activity is flattened and we will need to set our location as an object with
-			// the necessary properties
-			// reset(activity) flattened..
-
+			/*
+				Our activity property defined in index.d.ts is flattened. 
+				To make reset work and following the schema/structure that we defined in our activitySchema file for zod validation, 
+				we will need to set our location as an object with the necessary properties.
+			*/
 			reset({
 				...activity,
 				location: {

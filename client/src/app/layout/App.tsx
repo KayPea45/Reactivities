@@ -8,7 +8,7 @@ function App() {
 	const location = useLocation();
 	return (
 		<Box sx={{ bgcolor: "#eeeeee", minHeight: "100vh" }}>
-			//* ScrollRestoration is used to restore the scroll position of the page when navigating between pages */
+			{/* ScrollRestoration is used to restore the scroll position of the page when navigating between pages */}
 			<ScrollRestoration />
 			<CssBaseline />
 			{location.pathname === "/" ? (

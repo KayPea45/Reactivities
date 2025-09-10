@@ -5,7 +5,6 @@ import { useActivities } from "../../../lib/hooks/useActivities";
 // import { observer } from "mobx-react-lite";
 
 export default function ActivityList() {
-
 	// Retrieve activities from our custom Hook
 	const { activities, isLoading } = useActivities();
 
@@ -14,10 +13,16 @@ export default function ActivityList() {
 	if (!activities) return <Typography>No Activities found</Typography>;
 
 	return (
-		<Box sx={{display: 'flex', flexDirection: 'column', gap: 3}}>
-			{activities.map(activity => (
+		<Box
+			sx={{
+				display: "flex",
+				flexDirection: "column",
+				gap: 3,
+			}}
+		>
+			{activities.map((activity) => (
 				<ActivityCard key={activity.id} activity={activity} />
 			))}
 		</Box>
 	);
-};
+}
